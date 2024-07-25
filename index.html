@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Playlist Duration Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-lg mx-auto bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold mb-4">YouTube Playlist Duration Calculator</h1>
+        <form id="durationForm" class="space-y-4">
+            <div>
+                <label for="playlistUrl" class="block text-gray-700">Enter YouTube Playlist URL:</label>
+                <input type="text" id="playlistUrl" class="w-full border border-gray-300 rounded p-2" required>
+            </div>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Calculate</button>
+        </form>
+        <div id="result" class="mt-4 text-gray-700"></div>
+    </div>
+    <script>
+        document.getElementById('durationForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const playlistUrl = document.getElementById('playlistUrl').value;
+
+            try {
+                // Send URL to backend for processing
+                const response = await fetch('http://127.0.0.1:5000/calculate_duration', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ playlistUrl })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch duration');
+                }
+
+                const result = await response.json();
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Display the result
+                const { days, hours, minutes, seconds } = result;
+                document.getElementById('result').innerText = `Total Duration: ${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`;
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
